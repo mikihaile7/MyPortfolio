@@ -1,6 +1,7 @@
 // src/pages/Contact.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { contactsApi } from '../api/api.js';
 
 export default function Contact() {
   const navigate = useNavigate();
@@ -28,28 +29,14 @@ export default function Contact() {
     setError(null);
 
     try {
-      // Send contact data to the backend REST API endpoint
-      const response = await fetch('/api/contacts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstname: formData.firstname,
-          lastname: formData.lastname,
-          email: formData.email,
-        }),
-      });
+      // Save the message to MongoDB through the Express API (POST /api/contacts)
+      await contactsApi.create(formData);
 
-      if (!response.ok) {
-        throw new Error('Failed to save contact to the database.');
-      }
-
-      alert(`Thank you, ${formData.firstname}! Your message has been successfully saved.\n\nRedirecting to Home Page.`);
+      alert(`Thank you, ${formData.firstname}! Your message has been saved.\n\nRedirecting to Home Page.`);
       navigate('/');
     } catch (err) {
       console.error('Submission error:', err);
-      setError('Failed to submit contact form. Please check your backend connection.');
+      setError(err.message || 'Failed to submit contact form.');
     } finally {
       setLoading(false);
     }
@@ -68,7 +55,7 @@ export default function Contact() {
 
         {/* Interactive Contact Form */}
         <form className="contact-form" onSubmit={handleSubmit}>
-          {error && <p className="error-message" style={{ color: 'red', marginBottom: '1rem' }}>{error}</p>}
+          {error && <p className="form-error">{error}</p>}
 
           <div className="form-group">
             <label htmlFor="firstname">First Name</label>

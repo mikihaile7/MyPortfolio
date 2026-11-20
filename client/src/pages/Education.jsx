@@ -1,43 +1,31 @@
-// src/pages/Education.jsx
-import React from 'react';
+// src/pages/Education.jsx - qualifications loaded from MongoDB via /api/qualifications
+import AdminCollection from '../components/AdminCollection.jsx';
+import useCollection from '../hooks/useCollection.js';
+import { qualificationsApi } from '../api/api.js';
+
+const year = (d) => (d ? new Date(d).getFullYear() : '');
 
 export default function Education() {
-  const educationList = [
-    {
-      id: 1,
-      institution: 'Centennial College',
-      degree: 'Advanced Diploma in Software Engineering Technology (Co-op)',
-      dates: '2025 - Present',
-      details: 'Focusing on Web Application Development, Object-Oriented Software Design, Database Systems, and Linux System Administration.'
-    },
-    {
-      id: 2,
-      institution: 'Coursera',
-      degree: 'Google Data Analytics Professional Certificate',
-      dates: '2026',
-      details: 'Completed hands-on data modeling, demographic analysis, time-series visualization, and predictive modeling projects.'
-    },
-    {
-      id: 2,
-      institution: 'freeCodeCamp',
-      degree: 'Data Analysis with Python Certification',
-      dates: '2026',
-      details: 'Completed hands-on data modeling, demographic analysis, time-series visualization, and predictive modeling projects.'
-    }
-  ];
+  const collection = useCollection(qualificationsApi);
 
   return (
-    <section className="page-container education-page">
-      <h2>Educational Background</h2>
-      <div className="timeline">
-        {educationList.map((item) => (
-          <div key={item.id} className="timeline-item">
-            <h3>{item.degree}</h3>
-            <h4>{item.institution} | <span className="dates">{item.dates}</span></h4>
-            <p>{item.details}</p>
-          </div>
-        ))}
-      </div>
-    </section>
+    <AdminCollection
+      title="Education & Qualifications"
+      titleLabel="Qualification / Program"
+      emptyText="No qualifications yet."
+      collection={collection}
+      renderItem={(items, actions) => (
+        <div className="timeline">
+          {items.map((q) => (
+            <div key={q._id} className="timeline-item">
+              <h3>{q.title}</h3>
+              <h4><span className="dates">Completion: {year(q.completion)}</span></h4>
+              <p>{q.description}</p>
+              {actions(q)}
+            </div>
+          ))}
+        </div>
+      )}
+    />
   );
 }

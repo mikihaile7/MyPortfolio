@@ -4,11 +4,13 @@ import authCtrl from "../controllers/auth.controller.js";
 
 const router = express.Router();
 
-router.route("/api/users")
-  .get(userCtrl.list)
-  .post(userCtrl.create);
+router
+  .route("/api/users")
+  .get(authCtrl.requireSignin, authCtrl.isAdmin, userCtrl.list) // admin only
+  .post(userCtrl.create); // public sign up
 
-router.route("/api/users/:userId")
+router
+  .route("/api/users/:userId")
   .get(authCtrl.requireSignin, userCtrl.read)
   .put(authCtrl.requireSignin, authCtrl.hasAuthorization, userCtrl.update)
   .delete(authCtrl.requireSignin, authCtrl.hasAuthorization, userCtrl.remove);
